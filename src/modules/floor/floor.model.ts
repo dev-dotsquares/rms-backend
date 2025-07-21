@@ -1,7 +1,38 @@
-import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../../database/connection';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Floor:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         restaurant_id:
+ *           type: string
+ *           format: uuid
+ *         name:
+ *           type: string
+ *         display_name:
+ *           type: string
+ *         description:
+ *           type: string
+ *         capacity:
+ *           type: integer
+ *         status:
+ *           type: string
+ *           enum: [active, inactive]
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
+import sequelize from "../../database/connection";
 
-export type FloorStatus = 'active' | 'inactive';
+export type FloorStatus = "active" | "inactive";
 
 interface FloorAttributes {
   id: string;
@@ -15,9 +46,13 @@ interface FloorAttributes {
   updated_at: Date;
 }
 
-interface FloorCreationAttributes extends Optional<FloorAttributes, 'id' | 'created_at' | 'updated_at'> {}
+interface FloorCreationAttributes
+  extends Optional<FloorAttributes, "id" | "created_at" | "updated_at"> {}
 
-class Floor extends Model<FloorAttributes, FloorCreationAttributes> implements FloorAttributes {
+class Floor
+  extends Model<FloorAttributes, FloorCreationAttributes>
+  implements FloorAttributes
+{
   public id!: string;
   public restaurant_id!: string;
   public name!: string;
@@ -31,17 +66,29 @@ class Floor extends Model<FloorAttributes, FloorCreationAttributes> implements F
 
 Floor.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     restaurant_id: { type: DataTypes.UUID, allowNull: false },
     name: { type: DataTypes.STRING, allowNull: false },
     display_name: { type: DataTypes.STRING, allowNull: false },
     description: { type: DataTypes.STRING, allowNull: false },
     capacity: { type: DataTypes.INTEGER, allowNull: false },
-    status: { type: DataTypes.ENUM('active', 'inactive'), allowNull: false },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    status: { type: DataTypes.ENUM("active", "inactive"), allowNull: false },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
-  { sequelize, tableName: 'floors', timestamps: false }
+  { sequelize, tableName: "floors", timestamps: false }
 );
 
-export default Floor; 
+export default Floor;

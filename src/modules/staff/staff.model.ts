@@ -1,8 +1,52 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Staff:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *         restaurant_id:
+ *           type: string
+ *           format: uuid
+ *         role:
+ *           type: string
+ *           enum: [waiter, kitchen_manager, admin]
+ *         name:
+ *           type: string
+ *         email:
+ *           type: string
+ *           format: email
+ *         phone:
+ *           type: string
+ *         status:
+ *           type: string
+ *           enum: [active, inactive, pending]
+ *         assigned_floor:
+ *           type: string
+ *           format: uuid
+ *           nullable: true
+ *         last_login:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
-export type StaffRole = 'waiter' | 'kitchen_manager' | 'admin';
-export type StaffStatus = 'active' | 'inactive' | 'pending';
+export type StaffRole = "waiter" | "kitchen_manager" | "admin";
+export type StaffStatus = "active" | "inactive" | "pending";
 
 interface StaffAttributes {
   id: string;
@@ -19,9 +63,16 @@ interface StaffAttributes {
   updated_at: Date;
 }
 
-interface StaffCreationAttributes extends Optional<StaffAttributes, 'id' | 'assigned_floor' | 'last_login' | 'created_at' | 'updated_at'> {}
+interface StaffCreationAttributes
+  extends Optional<
+    StaffAttributes,
+    "id" | "assigned_floor" | "last_login" | "created_at" | "updated_at"
+  > {}
 
-class Staff extends Model<StaffAttributes, StaffCreationAttributes> implements StaffAttributes {
+class Staff
+  extends Model<StaffAttributes, StaffCreationAttributes>
+  implements StaffAttributes
+{
   public id!: string;
   public user_id!: string;
   public restaurant_id!: string;
@@ -38,20 +89,38 @@ class Staff extends Model<StaffAttributes, StaffCreationAttributes> implements S
 
 Staff.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     user_id: { type: DataTypes.UUID, allowNull: false },
     restaurant_id: { type: DataTypes.UUID, allowNull: false },
-    role: { type: DataTypes.ENUM('waiter', 'kitchen_manager', 'admin'), allowNull: false },
+    role: {
+      type: DataTypes.ENUM("waiter", "kitchen_manager", "admin"),
+      allowNull: false,
+    },
     name: { type: DataTypes.STRING, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false },
     phone: { type: DataTypes.STRING, allowNull: false },
-    status: { type: DataTypes.ENUM('active', 'inactive', 'pending'), allowNull: false },
+    status: {
+      type: DataTypes.ENUM("active", "inactive", "pending"),
+      allowNull: false,
+    },
     assigned_floor: { type: DataTypes.UUID, allowNull: true },
     last_login: { type: DataTypes.DATE, allowNull: true },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
-  { sequelize, tableName: 'staff', timestamps: false }
+  { sequelize, tableName: "staff", timestamps: false }
 );
 
-export default Staff; 
+export default Staff;

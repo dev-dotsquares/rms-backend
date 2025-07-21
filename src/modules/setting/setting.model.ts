@@ -1,4 +1,33 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Setting:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         restaurant_id:
+ *           type: string
+ *           format: uuid
+ *           nullable: true
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *           nullable: true
+ *         key:
+ *           type: string
+ *         value:
+ *           type: string
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         updated_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
 interface SettingAttributes {
@@ -11,9 +40,16 @@ interface SettingAttributes {
   updated_at: Date;
 }
 
-interface SettingCreationAttributes extends Optional<SettingAttributes, 'id' | 'restaurant_id' | 'user_id' | 'created_at' | 'updated_at'> {}
+interface SettingCreationAttributes
+  extends Optional<
+    SettingAttributes,
+    "id" | "restaurant_id" | "user_id" | "created_at" | "updated_at"
+  > {}
 
-class Setting extends Model<SettingAttributes, SettingCreationAttributes> implements SettingAttributes {
+class Setting
+  extends Model<SettingAttributes, SettingCreationAttributes>
+  implements SettingAttributes
+{
   public id!: string;
   public restaurant_id?: string | null;
   public user_id?: string | null;
@@ -25,15 +61,27 @@ class Setting extends Model<SettingAttributes, SettingCreationAttributes> implem
 
 Setting.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     restaurant_id: { type: DataTypes.UUID, allowNull: true },
     user_id: { type: DataTypes.UUID, allowNull: true },
     key: { type: DataTypes.STRING, allowNull: false },
     value: { type: DataTypes.STRING, allowNull: false },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
-    updated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
-  { sequelize, tableName: 'settings', timestamps: false }
+  { sequelize, tableName: "settings", timestamps: false }
 );
 
-export default Setting; 
+export default Setting;

@@ -1,4 +1,28 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Session:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *         token:
+ *           type: string
+ *         device_info:
+ *           type: string
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ *         expires_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
 interface SessionAttributes {
@@ -10,9 +34,12 @@ interface SessionAttributes {
   expires_at: Date;
 }
 
-interface SessionCreationAttributes extends Optional<SessionAttributes, 'id'> {}
+interface SessionCreationAttributes extends Optional<SessionAttributes, "id"> {}
 
-class Session extends Model<SessionAttributes, SessionCreationAttributes> implements SessionAttributes {
+class Session
+  extends Model<SessionAttributes, SessionCreationAttributes>
+  implements SessionAttributes
+{
   public id!: string;
   public user_id!: string;
   public token!: string;
@@ -23,14 +50,22 @@ class Session extends Model<SessionAttributes, SessionCreationAttributes> implem
 
 Session.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     user_id: { type: DataTypes.UUID, allowNull: false },
     token: { type: DataTypes.STRING, allowNull: false, unique: true },
     device_info: { type: DataTypes.STRING, allowNull: false },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
     expires_at: { type: DataTypes.DATE, allowNull: false },
   },
-  { sequelize, tableName: 'sessions', timestamps: false }
+  { sequelize, tableName: "sessions", timestamps: false }
 );
 
-export default Session; 
+export default Session;

@@ -1,3 +1,28 @@
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Bill:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         order_id:
+ *           type: string
+ *           format: uuid
+ *         total:
+ *           type: number
+ *           format: float
+ *         payment_method:
+ *           type: string
+ *         payment_status:
+ *           type: string
+ *           enum: [pending, completed, failed]
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ */
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 

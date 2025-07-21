@@ -1,7 +1,35 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Payment:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         bill_id:
+ *           type: string
+ *           format: uuid
+ *         amount:
+ *           type: number
+ *           format: float
+ *         method:
+ *           type: string
+ *         status:
+ *           type: string
+ *           enum: [pending, completed, failed]
+ *         transaction_id:
+ *           type: string
+ *           nullable: true
+ *         created_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
-export type PaymentStatus = 'pending' | 'completed' | 'failed';
+export type PaymentStatus = "pending" | "completed" | "failed";
 
 interface PaymentAttributes {
   id: string;
@@ -13,9 +41,13 @@ interface PaymentAttributes {
   created_at: Date;
 }
 
-interface PaymentCreationAttributes extends Optional<PaymentAttributes, 'id' | 'transaction_id' | 'created_at'> {}
+interface PaymentCreationAttributes
+  extends Optional<PaymentAttributes, "id" | "transaction_id" | "created_at"> {}
 
-class Payment extends Model<PaymentAttributes, PaymentCreationAttributes> implements PaymentAttributes {
+class Payment
+  extends Model<PaymentAttributes, PaymentCreationAttributes>
+  implements PaymentAttributes
+{
   public id!: string;
   public bill_id!: string;
   public amount!: number;
@@ -27,15 +59,26 @@ class Payment extends Model<PaymentAttributes, PaymentCreationAttributes> implem
 
 Payment.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     bill_id: { type: DataTypes.UUID, allowNull: false },
     amount: { type: DataTypes.DECIMAL, allowNull: false },
     method: { type: DataTypes.STRING, allowNull: false },
-    status: { type: DataTypes.ENUM('pending', 'completed', 'failed'), allowNull: false },
+    status: {
+      type: DataTypes.ENUM("pending", "completed", "failed"),
+      allowNull: false,
+    },
     transaction_id: { type: DataTypes.STRING, allowNull: true },
-    created_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
-  { sequelize, tableName: 'payments', timestamps: false }
+  { sequelize, tableName: "payments", timestamps: false }
 );
 
-export default Payment; 
+export default Payment;

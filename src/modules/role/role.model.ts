@@ -1,4 +1,19 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Role:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         name:
+ *           type: string
+ *         description:
+ *           type: string
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
 interface RoleAttributes {
@@ -7,9 +22,12 @@ interface RoleAttributes {
   description: string;
 }
 
-interface RoleCreationAttributes extends Optional<RoleAttributes, 'id'> {}
+interface RoleCreationAttributes extends Optional<RoleAttributes, "id"> {}
 
-class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
+class Role
+  extends Model<RoleAttributes, RoleCreationAttributes>
+  implements RoleAttributes
+{
   public id!: string;
   public name!: string;
   public description!: string;
@@ -34,9 +52,9 @@ Role.init(
   },
   {
     sequelize,
-    tableName: 'roles',
+    tableName: "roles",
     timestamps: false,
   }
 );
 
-export default Role; 
+export default Role;

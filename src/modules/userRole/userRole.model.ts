@@ -1,4 +1,18 @@
-import { DataTypes, Model } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     UserRole:
+ *       type: object
+ *       properties:
+ *         user_id:
+ *           type: string
+ *           format: uuid
+ *         role_id:
+ *           type: string
+ *           format: uuid
+ */
+import { DataTypes, Model } from "sequelize";
 import sequelize from "../../database/connection";
 
 interface UserRoleAttributes {
@@ -16,7 +30,7 @@ UserRole.init(
     user_id: { type: DataTypes.UUID, allowNull: false, primaryKey: true },
     role_id: { type: DataTypes.UUID, allowNull: false, primaryKey: true },
   },
-  { sequelize, tableName: 'user_roles', timestamps: false }
+  { sequelize, tableName: "user_roles", timestamps: false }
 );
 
-export default UserRole; 
+export default UserRole;

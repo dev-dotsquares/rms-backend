@@ -1,4 +1,25 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Report:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           format: uuid
+ *         restaurant_id:
+ *           type: string
+ *           format: uuid
+ *         type:
+ *           type: string
+ *         data:
+ *           type: object
+ *         generated_at:
+ *           type: string
+ *           format: date-time
+ */
+import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../../database/connection";
 
 interface ReportAttributes {
@@ -9,9 +30,12 @@ interface ReportAttributes {
   generated_at: Date;
 }
 
-interface ReportCreationAttributes extends Optional<ReportAttributes, 'id'> {}
+interface ReportCreationAttributes extends Optional<ReportAttributes, "id"> {}
 
-class Report extends Model<ReportAttributes, ReportCreationAttributes> implements ReportAttributes {
+class Report
+  extends Model<ReportAttributes, ReportCreationAttributes>
+  implements ReportAttributes
+{
   public id!: string;
   public restaurant_id!: string;
   public type!: string;
@@ -21,13 +45,21 @@ class Report extends Model<ReportAttributes, ReportCreationAttributes> implement
 
 Report.init(
   {
-    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
     restaurant_id: { type: DataTypes.UUID, allowNull: false },
     type: { type: DataTypes.STRING, allowNull: false },
     data: { type: DataTypes.JSON, allowNull: false },
-    generated_at: { type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW },
+    generated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
-  { sequelize, tableName: 'reports', timestamps: false }
+  { sequelize, tableName: "reports", timestamps: false }
 );
 
-export default Report; 
+export default Report;
