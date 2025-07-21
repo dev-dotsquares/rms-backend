@@ -139,3 +139,35 @@ flowchart TD
     L --> L1["project-structure.mdc"]
     L --> L2["prd.mdc"]
 ```
+
+---
+
+## Rule: Steps for Database Schema and Model Changes
+
+Whenever you create a new table/entity, add a column, rename a column, or add a new relation/association, you MUST follow these steps:
+
+1. **Create/Update Model Files:**
+   - For new tables, create a new module folder in `src/modules/{feature}/` with all layered files: `{feature}.model.ts`, `{feature}.repository.ts`, `{feature}.service.ts`, `{feature}.controller.ts`, `{feature}.route.ts`, `index.ts`.
+   - For schema changes, update the relevant `{feature}.model.ts` file.
+
+2. **Database Migration:**
+   - Create a new migration file in `src/database/migrations/` for any schema change (new table, add/rename column, new relation, etc.).
+   - Run the migration to apply changes.
+
+3. **Model Registration & Associations:**
+   - Register new models and define associations in `src/database/model/index.ts`.
+   - Update associations for new/changed relations.
+
+4. **Business Logic & API Layer:**
+   - Update `{feature}.repository.ts`, `{feature}.service.ts`, `{feature}.controller.ts`, and `{feature}.route.ts` if the schema change affects business logic or API endpoints.
+
+5. **API Documentation:**
+   - Add or update OpenAPI (Swagger) JSDoc comments in the model file to reflect the new/changed schema.
+
+6. **Project Documentation:**
+   - Update `.cursor/rules/` if conventions or rules change.
+   - Update `README.md` if the change is significant (new feature, breaking change, etc.).
+
+**All example commands and instructions must be Windows-friendly (PowerShell syntax, forward slashes, etc.) since the project is developed on Windows.**
+
+**This checklist must be followed for all schema/model changes to ensure consistency, maintainability, and up-to-date documentation.**
