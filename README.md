@@ -5,6 +5,7 @@ A modular, scalable, and production-grade REST API backend for restaurant operat
 ---
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [Features](#features)
 - [Project Structure](#project-structure)
@@ -20,11 +21,13 @@ A modular, scalable, and production-grade REST API backend for restaurant operat
 ---
 
 ## Overview
+
 This backend powers a Restaurant Management System, supporting user management, roles, restaurant entities, orders, billing, reporting, and more. It enforces best practices (SOLID, layered architecture, feature-based modularity) and provides robust validation, error handling, and API documentation.
 
 ---
 
 ## Features
+
 - Feature-based, layered architecture (route → controller → service → repository)
 - Modular business domains: user, role, restaurant, staff, table, order, bill, payment, report, etc.
 - Centralized model associations (Sequelize)
@@ -37,6 +40,7 @@ This backend powers a Restaurant Management System, supporting user management, 
 ---
 
 ## Project Structure
+
 ```text
 src/
   modules/         # All business/domain modules (feature-based)
@@ -57,6 +61,7 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## Tech Stack
+
 - **Node.js** (LTS)
 - **TypeScript** (strict mode)
 - **Express.js**
@@ -69,6 +74,7 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## Setup & Installation
+
 1. **Clone the repository:**
    ```sh
    git clone <repo-url>
@@ -84,6 +90,7 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## Database Migration & Seeding
+
 1. **Create the MySQL database:**
    ```sh
    mysql -u root -p -e "CREATE DATABASE rms-backend;"
@@ -100,12 +107,14 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## API Documentation
+
 - Swagger UI is available at: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 - All endpoints and models are documented via JSDoc comments in the codebase.
 
 ---
 
 ## Development
+
 - **Start the server (dev mode):**
   ```sh
   npm run dev
@@ -126,11 +135,13 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## Testing
+
 - (Add your testing instructions here if you have tests set up)
 
 ---
 
 ## Contribution
+
 1. Fork the repo and create your branch from `main`.
 2. Follow the project structure and rules in `.cursor/rules/`.
 3. Ensure all new code is modular, validated, and documented.
@@ -139,4 +150,5 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 ---
 
 ## License
-[MIT](LICENSE) 
+
+[MIT](LICENSE)
