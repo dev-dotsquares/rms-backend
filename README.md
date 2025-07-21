@@ -77,7 +77,7 @@ For a visual diagram, see `.cursor/rules/project-structure.mdc`.
 
 1. **Clone the repository:**
    ```sh
-   git clone <repo-url>
+   git clone https://github.com/dev-dotsquares/rms-backend.git
    cd rms-backend
    ```
 2. **Install dependencies:**
