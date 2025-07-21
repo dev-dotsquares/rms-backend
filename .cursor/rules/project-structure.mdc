@@ -1,0 +1,141 @@
+# Project Structure and Rules
+
+## 1. Top-Level Structure (src/)
+
+- modules/ # All business/domain modules (feature-based)
+- core/ # Core utilities (Logger, ApiResponse, ApiError, JWT)
+- middleware/ # Global and reusable middleware (validate, errorHandler)
+- routes/ # Main API router (index.ts)
+- database/ # Sequelize connection, migrations, seeders, associations
+- config/ # Configuration files (e.g., config.js for Sequelize CLI)
+- types/ # TypeScript type definitions (if any)
+- helpers/ # Helper utilities (if any)
+- app.ts # Express app setup
+- server.ts # App entry point
+- .cursor/rules/ # Directory for persistent project rules and conventions
+
+## 2. modules/ (Feature-Based)
+
+Each business module (user, role, restaurant, etc.) contains:
+
+- {feature}.model.ts # Sequelize model
+- {feature}.repository.ts # Data access layer
+- {feature}.service.ts # Business logic
+- {feature}.controller.ts # Request/response logic
+- {feature}.route.ts # Express router
+- index.ts # Exports the router
+
+## 3. core/
+
+- Logger.ts
+- ApiResponse.ts
+- ApiError.ts
+- JWT.ts
+
+## 4. middleware/
+
+- validate.ts # Zod validation middleware
+- errorHandler.ts # Global error handler
+
+## 5. database/
+
+- connection.ts # Sequelize instance
+- model/index.ts # Centralized model associations
+- migrations/ # Sequelize migrations
+- seeders/ # Sequelize seeders
+- repository/ # (legacy, not used)
+- index.ts # Re-exports connection
+
+## 6. routes/
+
+- index.ts # Main API router, imports from modules
+
+## 7. config/
+
+- config.js # Sequelize CLI config
+
+## 8. .cursor/rules/
+
+- All persistent project rules, conventions, and architecture decisions must be documented here for future reference and enforcement.
+
+---
+
+# Persistent Rules
+
+- All business logic must be in modules/ using the layered pattern (route -> controller -> service -> repository).
+- All API responses must use ApiResponse and follow the pattern: { status: boolean, message: string, data?: object, details?: any }.
+- All validation must use Zod and the validate middleware.
+- All errors must be handled by ApiError and errorHandler middleware.
+- All model associations are centralized in database/model/index.ts.
+- All new features must follow this structure and pattern.
+- Do not place business logic in core/, middleware/, or routes/.
+- Do not import models directly from database/model/; always use modules/.
+- Do not break the layered architecture.
+- Do not change this structure without explicit user approval.
+- All rules and conventions must be mirrored in .cursor/rules/ for persistent, automated, or team-wide enforcement.
+
+# This rule is persistent and must be followed for all future changes.
+
+description:
+globs:
+alwaysApply: false
+
+---
+
+---
+
+# Detailed Project Structure Diagram
+
+```mermaid
+flowchart TD
+    A["src/"]
+    A --> B["modules/"]
+    B --> B1["user"]
+    B --> B2["role"]
+    B --> B3["restaurant"]
+    B --> B4["staff"]
+    B --> B5["floor"]
+    B --> B6["table"]
+    B --> B7["order"]
+    B --> B8["orderItem"]
+    B --> B9["kot"]
+    B --> B10["bill"]
+    B --> B11["payment"]
+    B --> B12["setting"]
+    B --> B13["report"]
+    B --> B14["session"]
+    B --> B15["userRole"]
+    B1 --> B1a["user.model.ts"]
+    B1 --> B1b["user.repository.ts"]
+    B1 --> B1c["user.service.ts"]
+    B1 --> B1d["user.controller.ts"]
+    B1 --> B1e["user.route.ts"]
+    B1 --> B1f["index.ts"]
+    %% ...repeat for other modules as needed...
+    A --> C["core/"]
+    C --> C1["Logger.ts"]
+    C --> C2["ApiResponse.ts"]
+    C --> C3["ApiError.ts"]
+    C --> C4["JWT.ts"]
+    A --> D["middleware/"]
+    D --> D1["validate.ts"]
+    D --> D2["errorHandler.ts"]
+    A --> E["routes/"]
+    E --> E1["index.ts"]
+    A --> F["database/"]
+    F --> F1["connection.ts"]
+    F --> F2["model/index.ts"]
+    F --> F3["migrations/"]
+    F --> F4["seeders/"]
+    F --> F5["repository/"]
+    F --> F6["index.ts"]
+    A --> G["config/"]
+    G --> G1["config.js"]
+    A --> H["types/"]
+    A --> I["helpers/"]
+    A --> J["app.ts"]
+    A --> K["server.ts"]
+    A --> L[".cursor/rules/"]
+    L --> L1["project-structure.mdc"]
+    L --> L2["prd.mdc"]
+```

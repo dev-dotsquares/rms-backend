@@ -1,0 +1,35 @@
+import { Router } from "express";
+const router = Router();
+import user from "../modules/user";
+import role from "../modules/role";
+import restaurant from "../modules/restaurant";
+import staff from "../modules/staff";
+import floor from "../modules/floor";
+import table from "../modules/table";
+import order from "../modules/order";
+import orderItem from "../modules/orderItem";
+import kot from "../modules/kot";
+import bill from "../modules/bill";
+import payment from "../modules/payment";
+import setting from "../modules/setting";
+import report from "../modules/report";
+import session from "../modules/session";
+import userRole from "../modules/userRole";
+
+router.use("/users", user);
+router.use("/roles", role);
+router.use("/restaurants", restaurant);
+router.use("/staff", staff);
+router.use("/floors", floor);
+router.use("/tables", table);
+router.use("/orders", order);
+router.use("/orderItems", orderItem);
+router.use("/kot", kot);
+router.use("/bills", bill);
+router.use("/payments", payment);
+router.use("/settings", setting);
+router.use("/reports", report);
+router.use("/sessions", session);
+router.use("/userRoles", userRole);
+
+export default router;

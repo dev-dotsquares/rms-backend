@@ -1,0 +1,42 @@
+{
+  "name": "rms-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "npx sequelize-cli db:migrate --config src/config/config.js --migrations-path src/database/migrations",
+    "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all --config src/config/config.js --migrations-path src/database/migrations",
+    "migrate:one": "npx sequelize-cli db:migrate:undo --config src/config/config.js --migrations-path src/database/migrations",
+    "seed": "npx sequelize-cli db:seed:all --config src/config/config.js --seeders-path src/database/seeders",
+    "seed:one": "npx sequelize-cli db:seed --config src/config/config.js --seeders-path src/database/seeders",
+    "seed:undo:all": "npx sequelize-cli db:seed:undo:all --config src/config/config.js --seeders-path src/database/seeders",
+    "dev": "npx ts-node src/server.ts",
+    "dev:watch": "nodemon --watch src --exec ts-node src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/swagger-ui-express": "^4.1.8",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.2",
+    "sequelize": "^6.37.7",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "zod": "^4.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^24.0.15",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

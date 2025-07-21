@@ -1,0 +1,114 @@
+# Product Requirements Document (PRD)
+
+## Project Name
+Restaurant Management System (RMS) Backend
+
+---
+
+## 1. Overview
+The RMS Backend is a modular, scalable, and production-grade REST API server for managing restaurant operations. It is built with Node.js, Express, TypeScript, MySQL, and Sequelize ORM, following a feature-based, layered architecture. The backend exposes endpoints for user management, roles, restaurant entities, orders, billing, reporting, and more, with robust validation, error handling, and API documentation.
+
+---
+
+## 2. Goals & Objectives
+- Provide a secure, maintainable, and extensible backend for restaurant management.
+- Support all core business domains: users, roles, restaurants, staff, tables, orders, billing, payments, reports, etc.
+- Enforce best practices: SOLID principles, layered architecture, and feature-based modularity.
+- Ensure all API responses follow a strict, frontend-compatible pattern.
+- Enable easy onboarding for new developers via clear structure and documentation.
+
+---
+
+## 3. Technical Requirements
+
+### 3.1. Stack
+- Language: TypeScript (strict mode)
+- Runtime: Node.js (LTS)
+- Framework: Express.js
+- Database: MySQL (with Sequelize ORM)
+- Validation: Zod
+- Authentication: JWT (JSON Web Tokens)
+- Environment Management: dotenv
+- Documentation: Swagger (OpenAPI 3.0, auto-generated via JSDoc)
+- Logging: Custom Logger utility
+
+### 3.2. Architecture
+- Feature-based folder structure: All business logic grouped by domain in src/modules/.
+- Layered pattern: Route → Controller → Service → Repository.
+- Centralized model associations: All Sequelize associations in src/database/model/index.ts.
+- Global middleware: For error handling and request validation.
+- Strict API response format:
+  {
+    "status": boolean,
+    "message": string,
+    "data"?: object,
+    "details"?: any
+  }
+- Persistent rules and conventions: Documented in .cursor/rules/ for team-wide enforcement.
+
+### 3.3. Modules (Domains)
+Each module (e.g., user, role, restaurant, order, bill, etc.) must include:
+- {module}.model.ts (Sequelize model)
+- {module}.repository.ts (data access)
+- {module}.service.ts (business logic)
+- {module}.controller.ts (request/response)
+- {module}.route.ts (Express router)
+- index.ts (exports router)
+
+### 3.4. Core Utilities
+- Logger: Standardized logging for info, warnings, and errors.
+- ApiResponse: Helper for consistent API responses.
+- ApiError: Custom error class for API errors.
+- JWT: Utility for signing and verifying JWTs.
+
+### 3.5. Middleware
+- validate.ts: Zod-based request validation.
+- errorHandler.ts: Global error handler for all API errors.
+
+### 3.6. Database
+- Sequelize connection: Centralized in src/database/connection.ts.
+- Migrations & seeders: Located in src/database/migrations/ and src/database/seeders/.
+- Config: src/config/config.js for Sequelize CLI.
+
+### 3.7. Documentation
+- Swagger UI: Available at /api-docs, auto-generated from JSDoc comments in code.
+- Persistent rules: All architecture and coding standards are mirrored in .cursor/rules/.
+
+---
+
+## 4. Non-Functional Requirements
+- Scalability: Modular structure allows for easy addition of new features.
+- Maintainability: Strict separation of concerns and clear folder structure.
+- Security: JWT authentication, input validation, and error handling.
+- Testability: Layered architecture supports unit and integration testing.
+- Extensibility: New modules can be added with minimal changes to the core.
+
+---
+
+## 5. Deliverables
+- Complete backend codebase following the above structure and rules.
+- Database migrations and seeders for all entities.
+- Swagger API documentation.
+- .cursor/rules/ directory with all persistent project rules.
+- Example .env file and setup instructions.
+
+---
+
+## 6. Out of Scope
+- Frontend implementation.
+- Third-party integrations not specified in the schema.
+- Real-time features (e.g., WebSockets) unless explicitly requested.
+
+---
+
+## 7. Acceptance Criteria
+- All endpoints return responses in the required format.
+- All modules follow the layered and feature-based structure.
+- All business logic is in src/modules/.
+- All validation and error handling is global and consistent.
+- All persistent rules are documented in .cursor/rules/.
+- The project runs and passes all migrations, seeders, and basic endpoint tests.
+description:
+globs:
+alwaysApply: false
+---

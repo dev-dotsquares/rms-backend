@@ -1,0 +1,1417 @@
+# RestaurantPOS API Reference & Recovery Manual
+
+> **Version:** 1.0
+>
+> This file documents all live API endpoints used in the RestaurantPOS application, grouped by page/feature. For each endpoint, you’ll find:
+>
+> - Endpoint URL & HTTP Method
+> - Section (Page/Feature)
+> - Related components/services/routes
+> - Request & response payloads
+> - Handling logic for each response key
+> - Auth requirements, query params, headers
+> - Notes on deprecation or special handling
+>
+> **This file is version-controlled and must be kept up to date with all API changes.**
+
+---
+
+## 🟢 **Login Page**
+
+### Endpoint Name:
+
+`/api/auth/login`
+
+**HTTP Method:** `POST`
+
+**Section:** Login Page
+
+**Related component:** `app/login/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.auth.login)
+
+**Related route:** `/login`
+
+**Auth required:** No
+
+**Request Payload:**
+
+```json
+{
+  "email": "user@example.com",
+  "password": "user@123"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "status": true,
+  "message": "Login successfully",
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "user": {
+    "id": "u123",
+    "name": "John Doe",
+    "role": "admin"
+  }
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "status": "Used to show toast notifications and UI feedback",
+  "message": "Displayed in UI via Alert component",
+  "token": "Stored in localStorage and used in Authorization headers for future requests",
+  "user": {
+    "id": "Used for dashboard redirect and route-based access",
+    "role": "Used for role-based rendering and access control"
+  }
+}
+```
+
+---
+
+## 🟢 **Dashboard Page**
+
+### Endpoint Name:
+
+`/api/dashboard/{role}`
+
+**HTTP Method:** `GET`
+
+**Section:** Dashboard (all roles)
+
+**Related component:** `app/dashboard/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.dashboard.getDashboardData)
+
+**Related route:** `/dashboard`
+
+**Auth required:** Yes (Token in Authorization header)
+
+**Request Example:**
+
+- No body. Role is passed as a path param (e.g., `/api/dashboard/restaurant_admin`)
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "metrics": { ... },
+    "quickActions": [ ... ],
+    "alerts": [ ... ]
+  },
+  "message": "Dashboard data loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data.metrics": "Used to render metric cards",
+  "data.quickActions": "Used to render quick action buttons",
+  "data.alerts": "Used to render alerts/notifications",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Orders Page**
+
+### Endpoint Name:
+
+`/api/orders`
+
+**HTTP Method:** `GET`
+
+**Section:** Orders Management
+
+**Related component:** `app/orders/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.orders.getOrders)
+
+**Related route:** `/orders`
+
+**Auth required:** Yes (Token in Authorization header)
+
+**Query Params:**
+
+- `status` (optional): Filter by order status
+- `tableId` (optional): Filter by table
+- `date` (optional): Filter by date
+
+**Request Example:**
+
+- `/api/orders?status=ready&date=2024-01-15`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "order_001",
+      "tableId": "table_5",
+      "status": "pending",
+      "items": [ ... ],
+      "total": 1200,
+      "createdAt": "2024-01-15T14:30:00Z"
+    }
+  ],
+  "message": "Orders loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render order cards and lists",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/orders/{id}`
+
+**HTTP Method:** `GET`
+
+**Section:** Order Details/Edit
+
+**Related component:** `app/orders/page.tsx`, `app/waiter/orders/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.orders.getOrder)
+
+**Related route:** `/orders`, `/waiter/orders`
+
+**Auth required:** Yes
+
+**Request Example:**
+
+- `/api/orders/order_001`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "order_001",
+    "tableId": "table_5",
+    "status": "pending",
+    "items": [ ... ],
+    "total": 1200,
+    "createdAt": "2024-01-15T14:30:00Z"
+  },
+  "message": "Order loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render order details dialog or edit form",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/orders/{id}/status`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Order Status Update
+
+**Related component:** `app/orders/page.tsx`, `app/waiter/orders/page.tsx`, `app/kitchen/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.orders.updateOrderStatus)
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "status": "ready"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "orderId": "order_001",
+    "status": "ready"
+  },
+  "message": "Order status updated successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data.status": "Update order status in UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Floorplan Page**
+
+### Endpoint Name:
+
+`/api/floors`
+
+**HTTP Method:** `GET`
+
+**Section:** Floor Management
+
+**Related component:** `app/floorplan/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.floors.getFloors)
+
+**Related route:** `/floorplan`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "floor_1",
+      "name": "Main Floor",
+      "displayName": "Main Floor",
+      "description": "Ground level seating",
+      "capacity": 40,
+      "status": "active",
+      "tableCount": 12,
+      "activeTables": 8,
+      "reservedTables": 2
+    }
+  ],
+  "message": "Floors loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render floor selection and stats",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/floors/{id}/tables`
+
+**HTTP Method:** `GET`
+
+**Section:** Floor Tables
+
+**Related component:** `app/floorplan/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.floors.getFloorTables)
+
+**Related route:** `/floorplan`
+
+**Auth required:** Yes
+
+**Request Example:**
+
+- `/api/floors/floor_1/tables`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "message": "Tables loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render tables on the floorplan",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Tables Page**
+
+### Endpoint Name:
+
+`/api/tables`
+
+**HTTP Method:** `GET`
+
+**Section:** Table Management
+
+**Related component:** `app/tables/page.tsx`, `app/waiter/tables/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.tables.getTables)
+
+**Related route:** `/tables`, `/waiter/tables`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "message": "Tables loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render table list and stats",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/tables/{id}/status`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Table Status Update
+
+**Related component:** `app/tables/page.tsx`, `app/waiter/tables/page.tsx`, `app/floorplan/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.tables.updateTableStatus)
+
+**Related route:** `/tables`, `/waiter/tables`, `/floorplan`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "status": "occupied"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "table_1",
+    "status": "occupied"
+  },
+  "message": "Table status updated successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data.status": "Update table status in UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Waiter Tables Page**
+
+### Endpoint Name:
+
+`/api/staff`
+
+**HTTP Method:** `GET`
+
+**Section:** Waiter Assignment
+
+**Related component:** `app/waiter/tables/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.staff.getStaff)
+
+**Related route:** `/waiter/tables`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "message": "Staff loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to filter tables by assigned waiter",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Billing Page**
+
+### Endpoint Name:
+
+`/api/billing/recent`
+
+**HTTP Method:** `GET`
+
+**Section:** Billing/Receipts
+
+**Related component:** `app/billing/page.tsx`, `app/waiter/billing/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.billing.getRecentBills)
+
+**Related route:** `/billing`, `/waiter/billing`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "bill_001",
+      "orderId": "order_001",
+      "total": 1200,
+      "paymentMethod": "card",
+      "paymentStatus": "completed",
+      "createdAt": "2024-01-15T14:30:00Z"
+    }
+  ],
+  "message": "Recent bills loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render billing/receipt cards",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/billing/{id}`
+
+**HTTP Method:** `GET`
+
+**Section:** Bill/Receipt Details
+
+**Related component:** `app/billing/page.tsx`, `app/waiter/billing/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.billing.getBill)
+
+**Related route:** `/billing`, `/waiter/billing`
+
+**Auth required:** Yes
+
+**Request Example:**
+
+- `/api/billing/bill_001`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bill_001",
+    "orderId": "order_001",
+    "total": 1200,
+    "paymentMethod": "card",
+    "paymentStatus": "completed",
+    "createdAt": "2024-01-15T14:30:00Z"
+  },
+  "message": "Bill loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render bill/receipt details dialog",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/billing`
+
+**HTTP Method:** `POST`
+
+**Section:** Create Bill
+
+**Related component:** `app/billing/page.tsx`, `app/waiter/billing/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.billing.createBill)
+
+**Related route:** `/billing`, `/waiter/billing`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "orderId": "order_001",
+  "total": 1200,
+  "paymentMethod": "card"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "bill_002",
+    "orderId": "order_001",
+    "total": 1200,
+    "paymentMethod": "card",
+    "paymentStatus": "completed",
+    "createdAt": "2024-01-15T15:00:00Z"
+  },
+  "message": "Bill created successfully",
+  "timestamp": "2024-01-15T15:00:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update billing/receipt list",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Kitchen Page**
+
+### Endpoint Name:
+
+`/api/kitchen/queue`
+
+**HTTP Method:** `GET`
+
+**Section:** Kitchen Queue
+
+**Related component:** `app/kitchen/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.kitchen.getKitchenQueue)
+
+**Related route:** `/kitchen`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "kot_001",
+      "orderId": "order_001",
+      "tableId": "table_5",
+      "status": "in_prep",
+      "items": [ ... ],
+      "priority": "high",
+      "createdAt": "2024-01-15T14:30:00Z"
+    }
+  ],
+  "message": "Kitchen queue loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render kitchen queue cards",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/kitchen/orders/{id}/status`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Kitchen Order Status Update
+
+**Related component:** `app/kitchen/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.kitchen.updateKitchenOrderStatus)
+
+**Related route:** `/kitchen`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "status": "ready"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "orderId": "order_001",
+    "status": "ready"
+  },
+  "message": "Kitchen order status updated successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data.status": "Update kitchen order status in UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Staff Page**
+
+### Endpoint Name:
+
+`/api/staff`
+
+**HTTP Method:** `GET`
+
+**Section:** Staff Management
+
+**Related component:** `app/staff/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.staff.getStaff)
+
+**Related route:** `/staff`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "staff_001",
+      "name": "John Doe",
+      "role": "waiter",
+      "email": "john.doe@restaurant.com",
+      "status": "active"
+    }
+  ],
+  "message": "Staff loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render staff list",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/staff?role={role}`
+
+**HTTP Method:** `GET`
+
+**Section:** Staff by Role
+
+**Related component:** `app/staff/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.staff.getStaffByRole)
+
+**Related route:** `/staff`
+
+**Auth required:** Yes
+
+**Query Params:**
+
+- `role` (required): waiter, kitchen_manager, etc.
+
+**Request Example:**
+
+- `/api/staff?role=waiter`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "message": "Staff loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render staff list by role",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Reports Page**
+
+### Endpoint Name:
+
+`/api/reports/sales?range={range}`
+
+**HTTP Method:** `GET`
+
+**Section:** Sales Reports
+
+**Related component:** `app/reports/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.reports.getSalesReport)
+
+**Related route:** `/reports`
+
+**Auth required:** Yes
+
+**Query Params:**
+
+- `range` (required): 7days, 30days, etc.
+
+**Request Example:**
+
+- `/api/reports/sales?range=7days`
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "totalRevenue": 45250,
+    "totalOrders": 120,
+    "averageOrderValue": 378,
+    "topItems": [ ... ],
+    "dailyData": [ ... ]
+  },
+  "message": "Sales report loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render sales charts and analytics",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/reports/top-items`
+
+**HTTP Method:** `GET`
+
+**Section:** Top Items Report
+
+**Related component:** `app/reports/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.reports.getTopItemsReport)
+
+**Related route:** `/reports`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": [ ... ],
+  "message": "Top items loaded",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to render top items charts",
+  "message": "Displayed in UI if present",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+## 🟢 **Restaurants Page**
+
+### Endpoint Name:
+
+`/api/restaurants`
+
+**HTTP Method:** `GET`
+
+**Section:** Restaurant Management (Super Admin)
+
+**Related component:** `app/restaurants/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.restaurants.getRestaurants)
+
+**Related route:** `/restaurants`
+
+**Auth required:** Yes
+
+**Response Payload:**
+
+```
+
+```
+
+---
+
+## 🟢 **Restaurants Page (Create/Update)**
+
+### Endpoint Name:
+
+`/api/restaurants`
+
+**HTTP Method:** `POST`
+
+**Section:** Create Restaurant
+
+**Related component:** `app/restaurants/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.restaurants.createRestaurant)
+
+**Related route:** `/restaurants`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "name": "Spice Garden",
+  "address": "123 MG Road, Bangalore",
+  "phone": "+91 9876543210",
+  "email": "contact@spicegarden.com",
+  "plan": "basic",
+  "currency": "INR",
+  "timezone": "Asia/Kolkata"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "restaurant_001",
+    "name": "Spice Garden",
+    ...
+  },
+  "message": "Restaurant created successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update restaurant list",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/restaurants/{id}`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Update Restaurant
+
+**Related component:** `app/restaurants/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.restaurants.updateRestaurant)
+
+**Related route:** `/restaurants`
+
+**Auth required:** Yes
+
+**Request Example:**
+
+- `/api/restaurants/restaurant_001`
+
+**Request Payload:**
+
+```json
+{
+  "name": "Spice Garden Updated",
+  "address": "New Address",
+  ...
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "restaurant_001",
+    "name": "Spice Garden Updated",
+    ...
+  },
+  "message": "Restaurant updated successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update restaurant details in UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/staff`
+
+**HTTP Method:** `POST`
+
+**Section:** Invite/Create Staff
+
+**Related component:** `app/staff/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.staff.createStaff)
+
+**Related route:** `/staff`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "name": "Jane Doe",
+  "email": "jane@restaurant.com",
+  "phone": "+91 9876543211",
+  "role": "waiter"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "staff_002",
+    "name": "Jane Doe",
+    "email": "jane@restaurant.com",
+    "phone": "+91 9876543211",
+    "role": "waiter",
+    ...
+  },
+  "message": "Staff invitation sent",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update staff list immediately in the UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+**Note:**
+
+- The frontend now integrates this live API and handles loading, success, and error states. The staff list is refreshed on success.
+
+---
+
+## 🟢 **Settings Page (Update)**
+
+### Endpoint Name:
+
+`/api/settings/restaurant`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Update Restaurant Settings
+
+**Related component:** `app/settings/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.settings.updateRestaurantSettings)
+
+**Related route:** `/settings`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "name": "Spice Garden",
+  "address": "123 MG Road, Bangalore",
+  "phone": "+91 9876543210",
+  "email": "contact@spicegarden.com",
+  "currency": "INR",
+  "timezone": "Asia/Kolkata",
+  "taxRate": "18"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "Restaurant settings updated",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update settings form",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/settings/user`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Update User Settings
+
+**Related component:** `app/settings/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.settings.updateUserSettings)
+
+**Related route:** `/settings`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@restaurant.com",
+  "phone": "+91 9876543210",
+  "language": "en"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "User settings updated",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update user settings form",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/settings/system`
+
+**HTTP Method:** `PATCH`
+
+**Section:** Update System Settings (Super Admin)
+
+**Related component:** `app/settings/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.settings.updateSystemSettings)
+
+**Related route:** `/settings`
+
+**Auth required:** Yes (Super Admin)
+
+**Request Payload:**
+
+```json
+{
+  "demoMode": true,
+  "maintenanceMode": false,
+  "defaultCurrency": "INR",
+  "defaultTimezone": "Asia/Kolkata"
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "System settings updated",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update system settings form",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+---
+
+### Endpoint Name:
+
+`/api/orders`
+
+**HTTP Method:** `POST`
+
+**Section:** Create Order
+
+**Related component:** `app/orders/page.tsx`
+
+**Related service:** `lib/api-service.ts` (liveApi.orders.createOrder)
+
+**Related route:** `/orders`
+
+**Auth required:** Yes
+
+**Request Payload:**
+
+```json
+{
+  "type": "dine_in", // or "takeaway"
+  "tableId": "table_1", // required for dine_in
+  "customerName": "John Doe",
+  "customerPhone": "+91 9876543210",
+  "items": [
+    {
+      "id": "item_1",
+      "name": "Butter Chicken",
+      "quantity": 2,
+      "price": 450,
+      "notes": "No spice",
+      "chefId": null,
+      "chefName": "",
+      "prepTime": 15
+    }
+  ],
+  "total": 900
+}
+```
+
+**Response Payload:**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "order_12345",
+    "type": "dine_in",
+    "tableId": "table_1",
+    "customerName": "John Doe",
+    "customerPhone": "+91 9876543210",
+    "items": [ ... ],
+    "total": 900,
+    "status": "pending",
+    "createdAt": "2024-01-15T14:30:00Z"
+  },
+  "message": "Order created successfully",
+  "timestamp": "2024-01-15T14:30:00Z"
+}
+```
+
+**Handling Logic (per key):**
+
+```json
+{
+  "success": "If false, show error UI",
+  "data": "Used to update the orders list immediately in the UI",
+  "message": "Show toast or alert",
+  "timestamp": "For logging/debug only"
+}
+```
+
+**Note:**
+
+- The frontend now integrates this live API and handles loading, success, and error states. The orders list is refreshed on success.

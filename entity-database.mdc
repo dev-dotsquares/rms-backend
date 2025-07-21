@@ -1,0 +1,522 @@
+# RestaurantPOS Entity-Database Schema
+
+> **Purpose:**
+> This document maps the entire database schema for RestaurantPOS, including all tables (entities), their fields, naming conventions, relationships, and use-case mapping to API endpoints (see `api.md`).
+>
+> - Enables developers to understand the DB design at a glance
+> - Allows future devs to recreate the system from scratch
+> - Assists backend engineers and DBAs with optimization, indexing, and migrations
+
+---
+
+## 🧱 Table: users
+
+**Description:** Stores all user accounts, authentication, roles, and profile info.
+
+| Field Name    | Type          | Description                                                       |
+| ------------- | ------------- | ----------------------------------------------------------------- |
+| id            | UUID (PK)     | Unique user identifier                                            |
+| name          | VARCHAR       | Full name                                                         |
+| email         | VARCHAR (UNQ) | Email for login                                                   |
+| password_hash | VARCHAR       | Hashed password                                                   |
+| role          | ENUM          | User role: super_admin, restaurant_admin, kitchen_manager, waiter |
+| restaurant_id | UUID (FK)     | Linked restaurant (nullable for super_admin)                      |
+| created_at    | TIMESTAMP     | Record creation time                                              |
+| updated_at    | TIMESTAMP     | Last update time                                                  |
+
+**Relationships:**
+
+- One-to-Many: users → sessions
+- One-to-Many: users → staff (if user is staff)
+- One-to-Many: users → orders (if user is waiter)
+- Many-to-Many: users ↔ roles via user_roles (optional, for extensibility)
+
+**Related APIs:**
+
+- `/api/auth/login`
+- `/api/staff`
+- `/api/orders`
+
+**Indexes:**
+
+- email (UNIQUE)
+- role
+
+**Security:**
+
+- Passwords are hashed (never stored in plain text)
+
+---
+
+## 🧱 Table: sessions
+
+**Description:** Stores login sessions, JWT tokens, device/browser info.
+
+| Field Name  | Type      | Description               |
+| ----------- | --------- | ------------------------- |
+| id          | UUID (PK) | Unique session identifier |
+| user_id     | UUID (FK) | Linked user               |
+| token       | VARCHAR   | JWT or session token      |
+| device_info | VARCHAR   | Device/browser info       |
+| created_at  | TIMESTAMP | Session start time        |
+| expires_at  | TIMESTAMP | Expiry time               |
+
+**Relationships:**
+
+- Many-to-One: sessions → users
+
+**Related APIs:**
+
+- `/api/auth/login`
+
+**Indexes:**
+
+- user_id
+- token (UNIQUE)
+
+---
+
+## 🧱 Table: roles
+
+**Description:** Defines all possible user roles in the system.
+
+| Field Name  | Type          | Description                          |
+| ----------- | ------------- | ------------------------------------ |
+| id          | UUID (PK)     | Unique role identifier               |
+| name        | VARCHAR (UNQ) | Role name (e.g. super_admin, waiter) |
+| description | VARCHAR       | Role description                     |
+
+**Relationships:**
+
+- Many-to-Many: users ↔ roles via user_roles
+
+**Related APIs:**
+
+- (Internal, for role checks)
+
+---
+
+## 🧱 Table: user_roles
+
+**Description:** Join table for users and roles (for future extensibility).
+
+| Field Name | Type      | Description |
+| ---------- | --------- | ----------- |
+| user_id    | UUID (FK) | Linked user |
+| role_id    | UUID (FK) | Linked role |
+
+**Relationships:**
+
+- Many-to-Many: users ↔ roles
+
+---
+
+## 🧱 Table: restaurants
+
+**Description:** Stores restaurant profiles, settings, and metadata.
+
+| Field Name | Type      | Description                  |
+| ---------- | --------- | ---------------------------- |
+| id         | UUID (PK) | Unique restaurant identifier |
+| name       | VARCHAR   | Restaurant name              |
+| address    | VARCHAR   | Address                      |
+| phone      | VARCHAR   | Contact phone                |
+| email      | VARCHAR   | Contact email                |
+| currency   | VARCHAR   | Currency code (e.g. INR)     |
+| timezone   | VARCHAR   | Timezone                     |
+| status     | ENUM      | active, trial, suspended     |
+| plan       | VARCHAR   | Subscription plan            |
+| admin_id   | UUID (FK) | Linked admin user            |
+| created_at | TIMESTAMP | Creation time                |
+| updated_at | TIMESTAMP | Last update                  |
+| revenue    | DECIMAL   | Monthly revenue              |
+
+**Relationships:**
+
+- One-to-Many: restaurants → staff
+- One-to-Many: restaurants → tables
+- One-to-Many: restaurants → floors
+- One-to-Many: restaurants → orders
+- One-to-Many: restaurants → bills
+
+**Related APIs:**
+
+- `/api/restaurants`
+- `/api/settings/restaurant`
+
+**Indexes:**
+
+- name
+- admin_id
+
+---
+
+## 🧱 Table: staff
+
+**Description:** Stores all staff members (waiters, kitchen managers, admins) for each restaurant.
+
+| Field Name     | Type      | Description                    |
+| -------------- | --------- | ------------------------------ |
+| id             | UUID (PK) | Unique staff identifier        |
+| user_id        | UUID (FK) | Linked user                    |
+| restaurant_id  | UUID (FK) | Linked restaurant              |
+| role           | ENUM      | waiter, kitchen_manager, admin |
+| name           | VARCHAR   | Staff name                     |
+| email          | VARCHAR   | Staff email                    |
+| phone          | VARCHAR   | Staff phone                    |
+| status         | ENUM      | active, inactive, pending      |
+| assigned_floor | UUID (FK) | Assigned floor (nullable)      |
+| last_login     | TIMESTAMP | Last login time (nullable)     |
+| created_at     | TIMESTAMP | Creation time                  |
+| updated_at     | TIMESTAMP | Last update                    |
+
+**Relationships:**
+
+- Many-to-One: staff → users
+- Many-to-One: staff → restaurants
+- Many-to-One: staff → floors (assigned)
+- One-to-Many: staff → orders (if waiter)
+
+**Related APIs:**
+
+- `/api/staff`
+- `/api/staff/invite`
+
+**Indexes:**
+
+- restaurant_id
+- role
+- email (UNIQUE per restaurant)
+
+---
+
+## 🧱 Table: floors
+
+**Description:** Stores floor plans for each restaurant.
+
+| Field Name    | Type      | Description             |
+| ------------- | --------- | ----------------------- |
+| id            | UUID (PK) | Unique floor identifier |
+| restaurant_id | UUID (FK) | Linked restaurant       |
+| name          | VARCHAR   | Floor name              |
+| display_name  | VARCHAR   | Display name            |
+| description   | VARCHAR   | Description             |
+| capacity      | INT       | Max people capacity     |
+| status        | ENUM      | active, inactive        |
+| created_at    | TIMESTAMP | Creation time           |
+| updated_at    | TIMESTAMP | Last update             |
+
+**Relationships:**
+
+- Many-to-One: floors → restaurants
+- One-to-Many: floors → tables
+
+**Related APIs:**
+
+- `/api/floors`
+- `/api/floors/{id}/tables`
+
+**Indexes:**
+
+- restaurant_id
+- name
+
+---
+
+## 🧱 Table: tables
+
+**Description:** Stores all tables in each restaurant and their status/location.
+
+| Field Name      | Type      | Description                                |
+| --------------- | --------- | ------------------------------------------ |
+| id              | UUID (PK) | Unique table identifier                    |
+| restaurant_id   | UUID (FK) | Linked restaurant                          |
+| floor_id        | UUID (FK) | Linked floor                               |
+| label           | VARCHAR   | Table label/number                         |
+| seats           | INT       | Number of seats                            |
+| status          | ENUM      | vacant, occupied, reserved, needs_cleaning |
+| x               | INT       | X position (for floorplan UI)              |
+| y               | INT       | Y position (for floorplan UI)              |
+| current_order   | UUID (FK) | Current order (nullable)                   |
+| assigned_waiter | UUID (FK) | Assigned waiter (nullable)                 |
+| last_cleaned    | TIMESTAMP | Last cleaned time                          |
+| created_at      | TIMESTAMP | Creation time                              |
+| updated_at      | TIMESTAMP | Last update                                |
+
+**Relationships:**
+
+- Many-to-One: tables → restaurants
+- Many-to-One: tables → floors
+- Many-to-One: tables → staff (assigned waiter)
+- One-to-Many: tables → orders
+
+**Related APIs:**
+
+- `/api/tables`
+- `/api/tables/{id}/status`
+
+**Indexes:**
+
+- restaurant_id
+- floor_id
+- status
+
+---
+
+## 🧱 Table: orders
+
+**Description:** Stores all orders (dine-in, takeaway) for each restaurant.
+
+| Field Name     | Type      | Description                               |
+| -------------- | --------- | ----------------------------------------- |
+| id             | UUID (PK) | Unique order identifier                   |
+| restaurant_id  | UUID (FK) | Linked restaurant                         |
+| table_id       | UUID (FK) | Linked table (nullable for takeaway)      |
+| floor_id       | UUID (FK) | Linked floor                              |
+| type           | ENUM      | dine_in, takeaway                         |
+| status         | ENUM      | pending, in_progress, ready, served, paid |
+| total          | DECIMAL   | Order total amount                        |
+| waiter_id      | UUID (FK) | Linked staff (waiter)                     |
+| customer_name  | VARCHAR   | Customer name (nullable)                  |
+| customer_phone | VARCHAR   | Customer phone (nullable)                 |
+| notes          | VARCHAR   | Order notes (nullable)                    |
+| created_at     | TIMESTAMP | Creation time                             |
+| updated_at     | TIMESTAMP | Last update                               |
+
+**Relationships:**
+
+- Many-to-One: orders → restaurants
+- Many-to-One: orders → tables
+- Many-to-One: orders → staff (waiter)
+- One-to-Many: orders → order_items
+- One-to-Many: orders → kot
+- One-to-One: orders → bills
+
+**Related APIs:**
+
+- `/api/orders`
+- `/api/orders/{id}`
+- `/api/orders/{id}/status`
+
+**Indexes:**
+
+- restaurant_id
+- table_id
+- status
+
+---
+
+## 🧱 Table: order_items
+
+**Description:** Stores individual items for each order.
+
+| Field Name | Type      | Description                   |
+| ---------- | --------- | ----------------------------- |
+| id         | UUID (PK) | Unique order item identifier  |
+| order_id   | UUID (FK) | Linked order                  |
+| name       | VARCHAR   | Item name                     |
+| quantity   | INT       | Quantity ordered              |
+| price      | DECIMAL   | Price per item                |
+| notes      | VARCHAR   | Special notes (nullable)      |
+| chef_id    | UUID (FK) | Linked staff (chef, nullable) |
+| prep_time  | INT       | Preparation time (minutes)    |
+
+**Relationships:**
+
+- Many-to-One: order_items → orders
+- Many-to-One: order_items → staff (chef)
+
+**Related APIs:**
+
+- `/api/orders`
+- `/api/kitchen/queue`
+
+**Indexes:**
+
+- order_id
+- chef_id
+
+---
+
+## 🧱 Table: kot (kitchen_order_tickets)
+
+**Description:** Stores kitchen order tickets for tracking preparation.
+
+| Field Name     | Type      | Description                    |
+| -------------- | --------- | ------------------------------ |
+| id             | UUID (PK) | Unique KOT identifier          |
+| order_id       | UUID (FK) | Linked order                   |
+| table_id       | UUID (FK) | Linked table                   |
+| items          | JSONB     | List of order item IDs/objects |
+| status         | ENUM      | pending, in_prep, ready        |
+| created_at     | TIMESTAMP | Creation time                  |
+| estimated_time | INT       | Estimated prep time (minutes)  |
+
+**Relationships:**
+
+- Many-to-One: kot → orders
+- Many-to-One: kot → tables
+
+**Related APIs:**
+
+- `/api/kitchen/queue`
+- `/api/kitchen/orders/{id}/status`
+
+**Indexes:**
+
+- order_id
+- status
+
+---
+
+## 🧱 Table: bills
+
+**Description:** Stores billing and payment records for orders.
+
+| Field Name     | Type      | Description                       |
+| -------------- | --------- | --------------------------------- |
+| id             | UUID (PK) | Unique bill identifier            |
+| order_id       | UUID (FK) | Linked order                      |
+| total          | DECIMAL   | Bill total                        |
+| payment_method | VARCHAR   | Payment method (card, cash, etc.) |
+| payment_status | ENUM      | pending, completed, failed        |
+| created_at     | TIMESTAMP | Creation time                     |
+
+**Relationships:**
+
+- One-to-One: bills → orders
+
+**Related APIs:**
+
+- `/api/billing/recent`
+- `/api/billing/{id}`
+- `/api/billing` (POST)
+
+**Indexes:**
+
+- order_id (UNIQUE)
+- payment_status
+
+---
+
+## 🧱 Table: payments
+
+**Description:** Stores payment transaction details (for extensibility).
+
+| Field Name     | Type      | Description                         |
+| -------------- | --------- | ----------------------------------- |
+| id             | UUID (PK) | Unique payment identifier           |
+| bill_id        | UUID (FK) | Linked bill                         |
+| amount         | DECIMAL   | Payment amount                      |
+| method         | VARCHAR   | Payment method                      |
+| status         | ENUM      | pending, completed, failed          |
+| transaction_id | VARCHAR   | External transaction ref (nullable) |
+| created_at     | TIMESTAMP | Creation time                       |
+
+**Relationships:**
+
+- Many-to-One: payments → bills
+
+**Related APIs:**
+
+- (future: payment gateway integration)
+
+**Indexes:**
+
+- bill_id
+- status
+
+---
+
+## 🧱 Table: settings
+
+**Description:** Stores system, restaurant, and user-level settings.
+
+| Field Name    | Type      | Description                  |
+| ------------- | --------- | ---------------------------- |
+| id            | UUID (PK) | Unique settings identifier   |
+| restaurant_id | UUID (FK) | Linked restaurant (nullable) |
+| user_id       | UUID (FK) | Linked user (nullable)       |
+| key           | VARCHAR   | Setting key                  |
+| value         | VARCHAR   | Setting value                |
+| created_at    | TIMESTAMP | Creation time                |
+| updated_at    | TIMESTAMP | Last update                  |
+
+**Relationships:**
+
+- Many-to-One: settings → restaurants
+- Many-to-One: settings → users
+
+**Related APIs:**
+
+- `/api/settings/restaurant`
+- `/api/settings/user`
+- `/api/settings/system`
+
+**Indexes:**
+
+- restaurant_id
+- user_id
+- key
+
+---
+
+## 🧱 Table: reports
+
+**Description:** Stores analytics, sales, and performance reports.
+
+| Field Name    | Type      | Description                          |
+| ------------- | --------- | ------------------------------------ |
+| id            | UUID (PK) | Unique report identifier             |
+| restaurant_id | UUID (FK) | Linked restaurant                    |
+| type          | VARCHAR   | Report type (sales, top_items, etc.) |
+| data          | JSONB     | Report data                          |
+| generated_at  | TIMESTAMP | When report was generated            |
+
+**Relationships:**
+
+- Many-to-One: reports → restaurants
+
+**Related APIs:**
+
+- `/api/reports/sales`
+- `/api/reports/top-items`
+
+**Indexes:**
+
+- restaurant_id
+- type
+
+---
+
+## 🔗 Entity Relationships (Summary)
+
+- **users** (1) → (M) **sessions**, **staff**, **orders**
+- **users** (M) ↔ (M) **roles** via **user_roles**
+- **restaurants** (1) → (M) **staff**, **tables**, **floors**, **orders**, **bills**
+- **staff** (M) → (1) **users**, (M) → (1) **restaurants**, (M) → (1) **floors**
+- **floors** (1) → (M) **tables**
+- **tables** (M) → (1) **floors**, (M) → (1) **restaurants**, (M) → (1) **staff**
+- **orders** (M) → (1) **tables**, (M) → (1) **staff**, (M) → (1) **restaurants**
+- **orders** (1) → (M) **order_items**, (1) → (M) **kot**, (1) → (1) **bills**
+- **order_items** (M) → (1) **orders**, (M) → (1) **staff**
+- **kot** (M) → (1) **orders**, (M) → (1) **tables**
+- **bills** (1) → (1) **orders**, (1) → (M) **payments**
+- **settings** (M) → (1) **restaurants**, (M) → (1) **users**
+- **reports** (M) → (1) **restaurants**
+
+---
+
+## 📋 Best Practices
+
+- Use `snake_case` for all table and column names
+- Use UUIDs as primary keys
+- Use `created_at`, `updated_at`, `deleted_at` (for soft delete) timestamps
+- Define indexes for frequently queried columns (e.g. email, role, user_id, restaurant_id)
+- Use ENUMs for status/role fields for data integrity
+- Secure sensitive data (passwords, tokens)
+- Use JSONB for flexible fields (e.g. report data, KOT items)
+
+---
+
+> **This file must be updated with any schema or API change. It is essential for onboarding, migrations, and disaster recovery.**
