@@ -14,3 +14,6 @@ export function verifyJWT(token: string) {
     return null;
   }
 }
+
+// Alias for compatibility with auth.service.ts
+export const generateToken = signJWT;

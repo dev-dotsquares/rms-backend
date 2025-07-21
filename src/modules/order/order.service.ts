@@ -1,4 +1,4 @@
-import { OrderRepository } from './order.repository';
+import { OrderRepository } from "./order.repository";
 
 export class OrderService {
   private orderRepo = new OrderRepository();
@@ -11,8 +11,8 @@ export class OrderService {
     restaurant_id: string;
     table_id?: string | null;
     floor_id: string;
-    type: 'dine_in' | 'takeaway';
-    status: 'pending' | 'in_progress' | 'ready' | 'served' | 'paid';
+    type: "dine_in" | "takeaway";
+    status: "pending" | "in_progress" | "ready" | "served" | "paid";
     total: number;
     waiter_id: string;
     customer_name?: string | null;
@@ -21,6 +21,17 @@ export class OrderService {
   }) {
     return this.orderRepo.createOrder(data);
   }
+
+  async getOrderById(id: string) {
+    return this.orderRepo.findOrderById(id);
+  }
+
+  async updateOrderStatus(id: string, status: string) {
+    const [updated] = await this.orderRepo.updateOrder(id, {
+      status: status as import("./order.model").OrderStatus,
+    });
+    return updated > 0;
+  }
 }
 
-export default new OrderService(); 
+export default new OrderService();

@@ -18,7 +18,17 @@ const orderSchema = z.object({
   notes: z.string().optional()
 });
 
-router.get('/', (req, res) => OrderController.getAllOrders(req, res));
-router.post('/', validate(orderSchema), (req, res) => OrderController.createOrder(req, res));
+const statusSchema = z.object({
+  status: z.enum(["pending", "in_progress", "ready", "served", "paid"]),
+});
+
+router.get("/", (req, res) => OrderController.getAllOrders(req, res));
+router.post("/", validate(orderSchema), (req, res) =>
+  OrderController.createOrder(req, res)
+);
+router.get("/:id", (req, res) => OrderController.getOrderById(req, res));
+router.patch("/:id/status", validate(statusSchema), (req, res) =>
+  OrderController.updateOrderStatus(req, res)
+);
 
 export default router; 

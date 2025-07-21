@@ -41,6 +41,8 @@ interface UserAttributes {
   restaurant_id?: string | null;
   created_at: Date;
   updated_at: Date;
+  // Add this for TypeScript compatibility
+  password?: string;
 }
 
 interface UserCreationAttributes
@@ -61,6 +63,8 @@ class User
   public restaurant_id?: string | null;
   public created_at!: Date;
   public updated_at!: Date;
+  // Add this for TypeScript compatibility
+  public password?: string;
 }
 
 User.init(
