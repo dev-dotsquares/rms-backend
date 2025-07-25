@@ -38,13 +38,10 @@ coverage/
 *.swo
 
 # Cursor/AI/IDE rules and caches
-.cursor/rules/*.mdc
-!.cursor/rules/project-structure.mdc
-!.cursor/rules/prd.mdc
+
 
 # Ignore seeders and migrations (exclude all files in these folders)
-src/database/seeders/*
-src/database/migrations/*
+
 !src/database/seeders/.gitkeep
 !src/database/migrations/.gitkeep
 

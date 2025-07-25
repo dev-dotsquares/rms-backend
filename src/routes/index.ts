@@ -15,7 +15,7 @@ import setting from "../modules/setting";
 import report from "../modules/report";
 import session from "../modules/session";
 import userRole from "../modules/userRole";
-
+import auth from "../modules/auth";
 router.use("/users", user);
 router.use("/roles", role);
 router.use("/restaurants", restaurant);
@@ -31,5 +31,6 @@ router.use("/settings", setting);
 router.use("/reports", report);
 router.use("/sessions", session);
 router.use("/userRoles", userRole);
+router.use("/auth", auth);
 
 export default router;

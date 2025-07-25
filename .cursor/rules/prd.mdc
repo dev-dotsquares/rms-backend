@@ -1,15 +1,6 @@
-# Product Requirements Document (PRD)
-
-## Project Name
-Restaurant Management System (RMS) Backend
-
 ---
-
-## 1. Overview
-The RMS Backend is a modular, scalable, and production-grade REST API server for managing restaurant operations. It is built with Node.js, Express, TypeScript, MySQL, and Sequelize ORM, following a feature-based, layered architecture. The backend exposes endpoints for user management, roles, restaurant entities, orders, billing, reporting, and more, with robust validation, error handling, and API documentation.
-
+alwaysApply: false
 ---
-
 ## 2. Goals & Objectives
 - Provide a secure, maintainable, and extensible backend for restaurant management.
 - Support all core business domains: users, roles, restaurants, staff, tables, orders, billing, payments, reports, etc.

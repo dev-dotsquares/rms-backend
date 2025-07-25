@@ -24,13 +24,6 @@
 | created_at    | TIMESTAMP     | Record creation time                                              |
 | updated_at    | TIMESTAMP     | Last update time                                                  |
 
-**Relationships:**
-
-- One-to-Many: users → sessions
-- One-to-Many: users → staff (if user is staff)
-- One-to-Many: users → orders (if user is waiter)
-- Many-to-Many: users ↔ roles via user_roles (optional, for extensibility)
-
 **Related APIs:**
 
 - `/api/auth/login`
